@@ -1,9 +1,9 @@
 const sendForm = () => {
     const errorMessage = 'Что то пошло не так...',
-        //loadMessage = 'Загрузка...',
         successMesage = 'Спсасибо! Мы скоро с вами свяжемся!',
         formAll = document.querySelectorAll('form'),
         preloader = document.createElement('div');
+    const tempSend = {};
     preloader.classList.add('preloader');
     preloader.innerHTML = `
             <div class="circle circle-1"></div>
@@ -15,23 +15,26 @@ const sendForm = () => {
 
     const statusMessage = document.createElement('div');
     statusMessage.style.cssText = 'font-size: 2rem; color: #FFFFFF;';
-    //form.appendChild(statusMessage);
 
     formAll.forEach((item) => {
-        item.addEventListener('input', event => inputVerifi(event.target, item));
+        //item.querySelector('button').style.backgroundColor = 'rgba(25, 181, 254, 0.9)';
+        //item.querySelector('button').setAttribute('disabled', 'disabled');
+
+        console.log(item.querySelector('button'));
+        item.addEventListener('input', (event) => {
+            inputVerifi(event.target, item);
+            //item.querySelector('button').setAttribute('disabled', 'disabled');
+            console.log(tempSend);
+        });
 
         item.addEventListener('submit', (event) => {
+            console.log(item);
             event.preventDefault();
-
             item.appendChild(statusMessage);
             statusMessage.textContent = '';
             const formData = new FormData(item);
-            //request.send(formData);
-            let body = {};
 
-            // for (let val of formData.entries()) {
-            //     body[val[0]] = val[1];
-            // }
+            let body = {};
 
             formData.forEach((val, key) => {
                 body[key] = val;
@@ -70,29 +73,41 @@ const sendForm = () => {
     }
 
     const inputVerifi = (item, form) => {
-
+        //console.log(item, form.querySelector('button'));
         if (item.closest('.form-phone')) {
             item.value = item.value.substring(0, 12).replace(/[^\+0-9]/g, '') + item.value.substring(11,).replace(/./g, '');
             if (/^\+?([-()]*\d){8,11}$/.test(item.value) && item.value.length >= 8 && item.value.length <= 12) {
                 item.style.border = '';
-            } else { item.style.border = 'solid red'; }
+                tempSend.formPhone = true;
+            } else {
+                item.style.border = 'solid red';
+                tempSend.formPhone = false;
+            }
         }
-
         if (item.closest('.form-name') || item.closest('#form2-name')) {
+            if (item.value.length > 3) tempSend.formName = true;
             item.value = item.value.replace(/[^А-Яа-яЁё ]/gi, '');
+        } else {
+            tempSend.formName = false;
         }
 
         if (item.closest('.form-email')) {
             item.value = item.value.replace(/[^\w+@\w+\.\w]/gi, '');
-
-            if (/^\w+@\w+\.\w{2,}$/g.test(item.value)) {
+            if (/^\w+@\w+\.\w{2,}$/g.test(item.value) && item.value.length > 3) {
                 item.style.border = '';
-            } else { item.style.border = 'solid red'; }
+                tempSend.formEmail = true;
+            } else {
+                item.style.border = 'solid red';
+                tempSend.formEmail = false;
+            }
+        }
+        if (item.closest('.mess') && item.value.length > 3) {
+            item.value = item.value.replace(/[^А-Яа-яЁё\d .,?!'"]/gi, '');
+            tempSend.mess = true;
+        } else {
+            tempSend.mess = false;
         }
 
-        if (item.closest('.mess')) {
-            item.value = item.value.replace(/[^А-Яа-яЁё\d .,?!'"]/gi, '');
-        }
     }
 
     const inputItem = (item) => {
