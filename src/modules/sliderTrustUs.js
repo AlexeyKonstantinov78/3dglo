@@ -1,82 +1,83 @@
 const sliderTrustUs = () => {
     'use strict';
 
-    const options = {
-        main: '.companies-wrapper',
-        wrap: '.companies-hor',
-        slidesToShow: 4,
-        infinity: true,
-        responsive: [{
-            breakpoint: 1024,
-            slidesToShow: 3,
-        },
-        {
-            breakpoint: 768,
-            slidesToShow: 2,
-        },
-        {
-            breakpoint: 576,
-            slidesToShow: 1,
-        }]
-    };
+    try {
+        const options = {
+            main: '.companies-wrapper',
+            wrap: '.companies-hor',
+            slidesToShow: 4,
+            infinity: true,
+            responsive: [{
+                breakpoint: 1024,
+                slidesToShow: 3,
+            },
+            {
+                breakpoint: 768,
+                slidesToShow: 2,
+            },
+            {
+                breakpoint: 576,
+                slidesToShow: 1,
+            }]
+        };
 
-    class SliderCarousel {
-        constructor({
-            main,
-            wrap,
-            next,
-            prev,
-            infinity = false,
-            position = 0,
-            slidesToShow = 3,
-            responsive = []
-        }) {
-            if (!main || !wrap) {
-                console.warn('slider-нам доверяют: Необходимо 2 свойства, main и wrap');
-            }
-            this.main = document.querySelector(main);
-            this.wrap = document.querySelector(wrap);
-            this.slides = document.querySelector(wrap).children;
-            this.next = document.querySelector(next);
-            this.prev = document.querySelector(prev);
-            this.slidesToShow = slidesToShow;
-            this.options = {
-                position,
-                infinity,
-                widthSlide: Math.floor(100 / this.slidesToShow)
-            };
-            this.responsive = responsive;
-        }
-
-        init() {
-            this.addGloClass();
-            this.addStyle();
-
-            if (this.prev && this.next) {
-                this.controlSlider();
-            } else {
-                this.addArrow();
-                this.controlSlider();
-            }
-            if (this.responsive) {
-                this.responseInit();
+        class SliderCarousel {
+            constructor({
+                main,
+                wrap,
+                next,
+                prev,
+                infinity = false,
+                position = 0,
+                slidesToShow = 3,
+                responsive = []
+            }) {
+                if (!main || !wrap) {
+                    console.warn('slider-нам доверяют: Необходимо 2 свойства, main и wrap');
+                }
+                this.main = document.querySelector(main);
+                this.wrap = document.querySelector(wrap);
+                this.slides = document.querySelector(wrap).children;
+                this.next = document.querySelector(next);
+                this.prev = document.querySelector(prev);
+                this.slidesToShow = slidesToShow;
+                this.options = {
+                    position,
+                    infinity,
+                    widthSlide: Math.floor(100 / this.slidesToShow)
+                };
+                this.responsive = responsive;
             }
 
-        }
+            init() {
+                this.addGloClass();
+                this.addStyle();
 
-        addGloClass() {
-            this.main.classList.add('glo-slider');
-            this.wrap.classList.add('glo-slider__wrap');
-            for (const item of this.slides) {
-                item.classList.add('glo-slider__item');
+                if (this.prev && this.next) {
+                    this.controlSlider();
+                } else {
+                    this.addArrow();
+                    this.controlSlider();
+                }
+                if (this.responsive) {
+                    this.responseInit();
+                }
+
             }
-        }
 
-        addStyle() {
-            //let style = document.getElementById('')
-            const style = document.createElement('style');
-            style.id = 'sliderCarusel-style';
-            style.textContent = `
+            addGloClass() {
+                this.main.classList.add('glo-slider');
+                this.wrap.classList.add('glo-slider__wrap');
+                for (const item of this.slides) {
+                    item.classList.add('glo-slider__item');
+                }
+            }
+
+            addStyle() {
+                //let style = document.getElementById('')
+                const style = document.createElement('style');
+                style.id = 'sliderCarusel-style';
+                style.textContent = `
                 .glo-slider {
                     overflow: hidden !important;
                 }
@@ -112,79 +113,83 @@ const sliderTrustUs = () => {
                     outline: transparent;
                 }
             `;                                      // will-change необходим предупредить браузер об изменнении параметра в будущем
-            document.head.appendChild(style);
-        }
-
-        controlSlider() {
-            this.prev.addEventListener('click', this.prevSlider.bind(this));
-            this.next.addEventListener('click', this.nextSlider.bind(this));
-        }
-
-        prevSlider() {
-            if (this.options.infinity || this.options.position > 0) {
-                --this.options.position;
-                console.log(this.options.position);
-                if (this.options.position < 0) {
-                    this.options.position = this.slides.length - this.slidesToShow;
-                }
-                this.wrap.style.transform = `translateX(-${this.options.position * this.options.widthSlide}%)`;
+                document.head.appendChild(style);
             }
-        }
 
-        nextSlider() {
-            if (this.options.infinity || this.options.position < this.slides.length - this.slidesToShow) {
-                ++this.options.position;
-                console.log(this.options.position);
-                if (this.options.position > this.slides.length - this.slidesToShow) {
-                    this.options.position = 0;
-                }
-                this.wrap.style.transform = `translateX(-${this.options.position * this.options.widthSlide}%)`;
+            controlSlider() {
+                this.prev.addEventListener('click', this.prevSlider.bind(this));
+                this.next.addEventListener('click', this.nextSlider.bind(this));
             }
-        }
 
-        addArrow() {
-            this.prev = document.createElement('button');
-            this.next = document.createElement('button');
-
-            this.prev.className = 'glo-slider__prev';
-            this.next.className = 'glo-slider__next';
-
-            this.main.appendChild(this.prev);
-            this.main.appendChild(this.next);
-        }
-
-        responseInit() {
-            const slidesToShowDefault = this.slidesToShow;
-            const allRespone = this.responsive.map(item => item.breakpoint);
-            const maxResponse = Math.max(...allRespone);
-
-            const checkResponse = () => {
-                const widthWindow = document.documentElement.clientWidth;
-                if (widthWindow < maxResponse) {
-                    for (let i = 0; i < allRespone.length; i++) {
-                        if (widthWindow < allRespone[i]) {
-                            this.slidesToShow = this.responsive[i].slidesToShow;
-                            this.options.widthSlide = Math.floor(100 / this.slidesToShow);
-                            this.addStyle();
-                        }
+            prevSlider() {
+                if (this.options.infinity || this.options.position > 0) {
+                    --this.options.position;
+                    console.log(this.options.position);
+                    if (this.options.position < 0) {
+                        this.options.position = this.slides.length - this.slidesToShow;
                     }
-                } else {
-                    this.slidesToShow = slidesToShowDefault;
-                    this.options.widthSlide = Math.floor(100 / this.slidesToShow);
-                    this.addStyle();
+                    this.wrap.style.transform = `translateX(-${this.options.position * this.options.widthSlide}%)`;
                 }
-            };
+            }
 
-            checkResponse();
+            nextSlider() {
+                if (this.options.infinity || this.options.position < this.slides.length - this.slidesToShow) {
+                    ++this.options.position;
+                    console.log(this.options.position);
+                    if (this.options.position > this.slides.length - this.slidesToShow) {
+                        this.options.position = 0;
+                    }
+                    this.wrap.style.transform = `translateX(-${this.options.position * this.options.widthSlide}%)`;
+                }
+            }
 
-            window.addEventListener('resize', checkResponse);
+            addArrow() {
+                this.prev = document.createElement('button');
+                this.next = document.createElement('button');
 
+                this.prev.className = 'glo-slider__prev';
+                this.next.className = 'glo-slider__next';
+
+                this.main.appendChild(this.prev);
+                this.main.appendChild(this.next);
+            }
+
+            responseInit() {
+                const slidesToShowDefault = this.slidesToShow;
+                const allRespone = this.responsive.map(item => item.breakpoint);
+                const maxResponse = Math.max(...allRespone);
+
+                const checkResponse = () => {
+                    const widthWindow = document.documentElement.clientWidth;
+                    if (widthWindow < maxResponse) {
+                        for (let i = 0; i < allRespone.length; i++) {
+                            if (widthWindow < allRespone[i]) {
+                                this.slidesToShow = this.responsive[i].slidesToShow;
+                                this.options.widthSlide = Math.floor(100 / this.slidesToShow);
+                                this.addStyle();
+                            }
+                        }
+                    } else {
+                        this.slidesToShow = slidesToShowDefault;
+                        this.options.widthSlide = Math.floor(100 / this.slidesToShow);
+                        this.addStyle();
+                    }
+                };
+
+                checkResponse();
+
+                window.addEventListener('resize', checkResponse);
+
+            }
         }
+
+        const carousel = new SliderCarousel(options);
+        carousel.init();
     }
-
-    const carousel = new SliderCarousel(options);
-    carousel.init();
-
+    catch (e) {
+        console.warn(e);
+        console.warn('slider-нам доверяют: Необходимо 2 свойства, main и wrap');
+    }
 }
 
 export default sliderTrustUs;
